@@ -8,7 +8,7 @@ umiejetnosci = [
     "Barou", "Shidou", "Nagi", "Isagi"
 ]
 
-st.title("🔵 Blue Lock – Symulator Kwalifikacji")
+st.title("Blue Lock – Kwalifikacje")
 
 if "gracze" not in st.session_state:
     st.session_state.gracze = []
@@ -35,7 +35,7 @@ if st.session_state.stage == 1:
         st.session_state.stage = 2
 
 if st.session_state.stage >= 2:
-    st.subheader("🎯 Przydzielone umiejętności:")
+    st.subheader("Przydzielone umiejętności:")
     for i, g in enumerate(st.session_state.gracze, 1):
         st.write(f"{i}. {g['imie']} → {g['umiejetnosc']}")
 
@@ -58,24 +58,35 @@ if st.session_state.stage >= 2:
                 if pozostale:
                     st.session_state.gracze[i]["umiejetnosc"] = pozostale.pop()
 
-    if st.button("🔁 Losuj drużyny"):
-        random.shuffle(st.session_state.gracze)
-        polowa = len(st.session_state.gracze) // 2
-        druzyna1 = st.session_state.gracze[:polowa]
-        druzyna2 = st.session_state.gracze[polowa:]
+if "pokaz_druzyny" not in st.session_state:
+    st.session_state.pokaz_druzyny = False
+if "kapitan1" not in st.session_state:
+    st.session_state.kapitan1 = False
+if "kapitan2" not in st.session_state:
+    st.session_state.kapitan2 = False
 
-        def wypisz_druzyne(nazwa, druzyna):
-            st.markdown(f"### {nazwa}")
-            if st.checkbox(f"Losować kapitana dla {nazwa}?", key=nazwa):
-                kapitan = random.choice(druzyna)
-                for g in druzyna:
-                    ozn = " (KAPITAN)" if g == kapitan else ""
-                    st.write(f"{g['imie']} – {g['umiejetnosc']}{ozn}")
-            else:
-                for g in druzyna:
-                    st.write(f"{g['imie']} – {g['umiejetnosc']}")
+if st.button("🔁 Losuj drużyny"):
+    random.shuffle(st.session_state.gracze)
+    polowa = len(st.session_state.gracze) // 2
+    st.session_state.druzyna1 = st.session_state.gracze[:polowa]
+    st.session_state.druzyna2 = st.session_state.gracze[polowa:]
+    st.session_state.pokaz_druzyny = True
 
-        wypisz_druzyne("Drużyna 1", druzyna1)
-        wypisz_druzyne("Drużyna 2", druzyna2)
+if st.session_state.pokaz_druzyny:
+    st.subheader("🏆 Drużyny")
+
+    st.session_state.kapitan1 = st.checkbox("Losować kapitana dla Drużyny 1", key="kap1")
+    st.session_state.kapitan2 = st.checkbox("Losować kapitana dla Drużyny 2", key="kap2")
+
+    def wypisz_druzyne(nazwa, druzyna, losuj_kapitana):
+        st.markdown(f"### {nazwa}")
+        kapitan = random.choice(druzyna) if losuj_kapitana else None
+        for g in druzyna:
+            ozn = " (KAPITAN)" if g == kapitan else ""
+            st.write(f"{g['imie']} – {g['umiejetnosc']}{ozn}")
+
+    wypisz_druzyne("Drużyna 1", st.session_state.druzyna1, st.session_state.kapitan1)
+    wypisz_druzyne("Drużyna 2", st.session_state.druzyna2, st.session_state.kapitan2)
+
 
     st.info("Kwalifikacje do Blue Lock zakończone.")
